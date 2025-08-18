@@ -19,6 +19,9 @@
 
 ### Вариант 1. Запуск из Python
 1. Установите Python 3.10+ [с сайта](https://www.python.org/downloads/).
+2. Установите Git
+3. git clone https://github.com/Hashmaster82/birthdaycard.git
 2. Установите зависимости:
    ```bash
    pip install pillow
+3. Запуск через run.bat (Windows) 
