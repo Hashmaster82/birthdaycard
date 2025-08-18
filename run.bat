@@ -21,8 +21,8 @@ if not exist ".git" (
 )
 
 echo 🚀 Запуск программы...
-if exist "%REPO_DIR%dist\main.exe" (
-    start "" "%REPO_DIR%dist\main.exe"
+if exist "%REPO_DIR%dist\birthday_app.exe" (
+    start "" "%REPO_DIR%dist\birthday_app.exe"
 ) else (
-    python "%REPO_DIR%main.py"
+    python "%REPO_DIR%birthday_app.py"
 )

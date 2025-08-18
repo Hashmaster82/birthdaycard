@@ -16,6 +16,8 @@ except ImportError:
     )
     raise
 
+import calendar
+
 # ==== Пути и фон по умолчанию ====
 def get_desktop_path():
     if sys.platform == "win32":
@@ -58,11 +60,26 @@ def generate_image(birthdays, background_path):
         title_font = get_default_font(60)
         list_font = get_default_font(30)
 
+        # === Заголовок ===
         title = "Дни рождения"
         title_width = draw.textlength(title, font=title_font)
         title_x = (img.width - title_width) // 2
-        draw.text((title_x, 350), title, font=title_font, fill="black")
+        draw.text((title_x, 250), title, font=title_font, fill="black")
 
+        # === Название месяца ===
+        if birthdays:
+            month_num = int(birthdays[0]["date"].split(".")[1])
+            months_ru = [
+                "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+                "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+            ]
+            month_name = months_ru[month_num - 1]
+
+            month_width = draw.textlength(month_name, font=title_font)
+            month_x = (img.width - month_width) // 2
+            draw.text((month_x, 330), month_name, font=title_font, fill="black")
+
+        # === Список именинников ===
         y_position = 450
         for person in birthdays:
             draw.text((170, y_position), f"🎉 {person['name']} — {person['date']}",
