@@ -1,0 +1,1 @@
+Copyright 2020 The Darumadrop Project Authors (https://github.com/ManiackersDesign/darumadrop), all rights reserved.
