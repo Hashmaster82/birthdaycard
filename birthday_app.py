@@ -3,7 +3,7 @@
 
 import os
 import sys
-from tkinter import Tk, Label, Button, Listbox, END, Scrollbar, RIGHT, Y, Entry, Frame, messagebox
+from tkinter import Tk, Label, Button, Listbox, END, Scrollbar, RIGHT, Y, Entry, Frame, messagebox, LEFT, BOTH
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageTk
 except ImportError:
@@ -15,8 +15,6 @@ except ImportError:
         "Не найден модуль Pillow (PIL).\nУстановите его командой:\n\npip install pillow"
     )
     raise
-
-import calendar
 
 # ==== Пути и фон по умолчанию ====
 def get_desktop_path():
@@ -31,7 +29,6 @@ def get_desktop_path():
 
 
 def create_default_background():
-    """Создаёт белый фон, если background.jpg нет"""
     if not os.path.exists("background.jpg"):
         img = Image.new('RGB', (800, 1000), color=(255, 255, 255))
         img.save("background.jpg")
@@ -39,7 +36,6 @@ def create_default_background():
 
 
 def get_default_font(size):
-    """Возвращает шрифт"""
     try:
         if sys.platform == "win32":
             return ImageFont.truetype("dehinted-DarumadropOne.ttf", size)
@@ -52,7 +48,6 @@ def get_default_font(size):
 
 
 def generate_image(birthdays, background_path):
-    """Создаёт картинку с именинниками и сохраняет на рабочий стол"""
     try:
         img = Image.open(background_path)
         draw = ImageDraw.Draw(img)
@@ -79,11 +74,17 @@ def generate_image(birthdays, background_path):
             month_x = (img.width - month_width) // 2
             draw.text((month_x, 330), month_name, font=title_font, fill="black")
 
-        # === Список именинников ===
+        # === Сортировка по дате ===
+        sorted_birthdays = sorted(
+            birthdays,
+            key=lambda p: (int(p["date"].split(".")[1]), int(p["date"].split(".")[0]))
+        )
+
+        # === Список именинников (нумерованный) ===
         y_position = 450
-        for person in birthdays:
-            draw.text((170, y_position), f"🎉 {person['name']} — {person['date']}",
-                      font=list_font, fill="black")
+        for idx, person in enumerate(sorted_birthdays, start=1):
+            text = f"{idx}. {person['name']} — {person['date']}"
+            draw.text((170, y_position), text, font=list_font, fill="black")
             y_position += 50
 
         output_filename = os.path.join(get_desktop_path(), "birthdays_current.jpg")
@@ -95,7 +96,6 @@ def generate_image(birthdays, background_path):
         return None
 
 
-# ==== Основное приложение ====
 class BirthdayApp:
     def __init__(self, root):
         self.root = root
@@ -105,42 +105,54 @@ class BirthdayApp:
         self.birthdays = []
         self.preview_image = None
 
+        # ==== Основной контейнер: слева список, справа предпросмотр ====
+        main_frame = Frame(root)
+        main_frame.pack(fill=BOTH, expand=True)
+
+        left_frame = Frame(main_frame)
+        left_frame.pack(side=LEFT, fill=BOTH, expand=True, padx=10, pady=5)
+
+        right_frame = Frame(main_frame)
+        right_frame.pack(side=RIGHT, fill=BOTH, expand=True, padx=10, pady=5)
+
         # ==== Форма для ввода ====
-        form_frame = Frame(root)
+        form_frame = Frame(left_frame)
         form_frame.pack(pady=5)
 
         Label(form_frame, text="ФИО:").grid(row=0, column=0, padx=5)
-        self.name_entry = Entry(form_frame, width=30)
+        self.name_entry = Entry(form_frame, width=30, font=("Arial", 14))
         self.name_entry.grid(row=0, column=1, padx=5)
 
         Label(form_frame, text="Дата (ДД.ММ):").grid(row=0, column=2, padx=5)
-        self.date_entry = Entry(form_frame, width=10)
+        self.date_entry = Entry(form_frame, width=12, font=("Arial", 14))
         self.date_entry.grid(row=0, column=3, padx=5)
 
         Button(form_frame, text="Добавить", command=self.add_person).grid(row=0, column=4, padx=5)
 
         # ==== Список именинников ====
-        Label(root, text="Список именинников:").pack()
-
-        self.scrollbar = Scrollbar(root)
+        Label(left_frame, text="Список именинников:").pack()
+        self.scrollbar = Scrollbar(left_frame)
         self.scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.listbox = Listbox(root, width=50, height=10, yscrollcommand=self.scrollbar.set)
+        self.listbox = Listbox(left_frame, width=50, height=10, yscrollcommand=self.scrollbar.set, font=("Arial", 12))
         self.listbox.pack()
 
         self.scrollbar.config(command=self.listbox.yview)
 
         # ==== Кнопки ====
-        Button(root, text="Сгенерировать картинку", command=self.generate).pack(pady=5)
-        Button(root, text="Сохранить список в файл", command=self.save_to_file).pack(pady=5)
+        Button(left_frame, text="Сгенерировать картинку", command=self.generate).pack(pady=5)
+        Button(left_frame, text="Сохранить список в файл", command=self.save_to_file).pack(pady=5)
+        Button(left_frame, text="About", command=self.show_about).pack(pady=5)
 
-        # ==== Предпросмотр ====
-        Label(root, text="Предпросмотр:").pack(pady=5)
-        self.preview_label = Label(root)
+        # ==== Предпросмотр справа ====
+        Label(right_frame, text="Предпросмотр:").pack(pady=5)
+        self.preview_label = Label(right_frame)
         self.preview_label.pack()
 
+    def show_about(self):
+        messagebox.showinfo("About", "Автор: Разин Григорий")
+
     def validate_date(self, date_str):
-        """Проверяет корректность даты"""
         try:
             day, month = date_str.split(".")
             day = int(day)
@@ -174,18 +186,22 @@ class BirthdayApp:
         if not self.birthdays:
             self.listbox.insert(END, "Список пуст.")
         else:
-            for b in self.birthdays:
-                self.listbox.insert(END, f"{b['name']} — {b['date']}")
+            # отображаем тоже отсортированный список
+            sorted_birthdays = sorted(
+                self.birthdays,
+                key=lambda p: (int(p["date"].split(".")[1]), int(p["date"].split(".")[0]))
+            )
+            for idx, b in enumerate(sorted_birthdays, start=1):
+                self.listbox.insert(END, f"{idx}. {b['name']} — {b['date']}")
 
     def update_preview(self, image_path):
-        """Обновляет предпросмотр картинки"""
         try:
             img = Image.open(image_path)
-            img = img.convert("RGB")  # Преобразуем в RGB на всякий случай
-            img.thumbnail((400, 500), Image.LANCZOS)  # Сохраняем пропорции
+            img = img.convert("RGB")
+            img.thumbnail((400, 500), Image.LANCZOS)
             self.preview_image = ImageTk.PhotoImage(img)
             self.preview_label.config(image=self.preview_image)
-            self.preview_label.image = self.preview_image  # Гарантируем сохранение ссылки
+            self.preview_label.image = self.preview_image
         except Exception as e:
             messagebox.showerror("Ошибка предпросмотра", f"Не удалось загрузить картинку: {e}")
 
@@ -205,9 +221,13 @@ class BirthdayApp:
             return
         file_path = os.path.join(os.getcwd(), "birthdays.txt")
         try:
+            sorted_birthdays = sorted(
+                self.birthdays,
+                key=lambda p: (int(p["date"].split(".")[1]), int(p["date"].split(".")[0]))
+            )
             with open(file_path, "w", encoding="utf-8") as f:
-                for b in self.birthdays:
-                    f.write(f"{b['name']},{b['date']}\n")
+                for idx, b in enumerate(sorted_birthdays, start=1):
+                    f.write(f"{idx}. {b['name']},{b['date']}\n")
             messagebox.showinfo("Сохранено", f"Список сохранён в {file_path}")
         except Exception as e:
             messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {e}")
