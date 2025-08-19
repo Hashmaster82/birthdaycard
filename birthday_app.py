@@ -52,14 +52,14 @@ def generate_image(birthdays, background_path):
         img = Image.open(background_path)
         draw = ImageDraw.Draw(img)
 
-        title_font = get_default_font(65)
+        title_font = get_default_font(67)
         list_font = get_default_font(30)
 
         # === Заголовок ===
         title = "Дни рождения"
         title_width = draw.textlength(title, font=title_font)
         title_x = (img.width - title_width) // 2
-        draw.text((title_x, 240), title, font=title_font, fill="black")
+        draw.text((title_x, 245), title, font=title_font, fill="black")
 
         # === Название месяца ===
         if birthdays:
