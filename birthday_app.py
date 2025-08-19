@@ -84,7 +84,7 @@ def generate_image(birthdays, background_path):
         y_position = 430
         for idx, person in enumerate(sorted_birthdays, start=1):
             text = f"{idx}. {person['name']} — {person['date']}"
-            draw.text((160, y_position), text, font=list_font, fill="black")
+            draw.text((140, y_position), text, font=list_font, fill="black")
             y_position += 50
 
         output_filename = os.path.join(get_desktop_path(), "birthdays_current.jpg")
