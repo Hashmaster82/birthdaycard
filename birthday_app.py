@@ -52,14 +52,14 @@ def generate_image(birthdays, background_path):
         img = Image.open(background_path)
         draw = ImageDraw.Draw(img)
 
-        title_font = get_default_font(60)
+        title_font = get_default_font(65)
         list_font = get_default_font(30)
 
         # === Заголовок ===
         title = "Дни рождения"
         title_width = draw.textlength(title, font=title_font)
         title_x = (img.width - title_width) // 2
-        draw.text((title_x, 250), title, font=title_font, fill="black")
+        draw.text((title_x, 240), title, font=title_font, fill="black")
 
         # === Название месяца ===
         if birthdays:
@@ -72,7 +72,7 @@ def generate_image(birthdays, background_path):
 
             month_width = draw.textlength(month_name, font=title_font)
             month_x = (img.width - month_width) // 2
-            draw.text((month_x, 330), month_name, font=title_font, fill="black")
+            draw.text((month_x, 325), month_name, font=title_font, fill="black")
 
         # === Сортировка по дате ===
         sorted_birthdays = sorted(
@@ -81,10 +81,10 @@ def generate_image(birthdays, background_path):
         )
 
         # === Список именинников (нумерованный) ===
-        y_position = 450
+        y_position = 430
         for idx, person in enumerate(sorted_birthdays, start=1):
             text = f"{idx}. {person['name']} — {person['date']}"
-            draw.text((170, y_position), text, font=list_font, fill="black")
+            draw.text((160, y_position), text, font=list_font, fill="black")
             y_position += 50
 
         output_filename = os.path.join(get_desktop_path(), "birthdays_current.jpg")
@@ -150,7 +150,8 @@ class BirthdayApp:
         self.preview_label.pack()
 
     def show_about(self):
-        messagebox.showinfo("About", "Автор: Разин Григорий")
+        messagebox.showinfo("About", "Программа для генерации изображения со списком именинников текущего месяца. "
+                                     "Автор: Разин Григорий, razin.grigory@yandex.ru")
 
     def validate_date(self, date_str):
         try:
@@ -198,7 +199,7 @@ class BirthdayApp:
         try:
             img = Image.open(image_path)
             img = img.convert("RGB")
-            img.thumbnail((400, 500), Image.LANCZOS)
+            img.thumbnail((400, 500), Image.Resampling.LANCZOS)
             self.preview_image = ImageTk.PhotoImage(img)
             self.preview_label.config(image=self.preview_image)
             self.preview_label.image = self.preview_image
