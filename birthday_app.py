@@ -151,7 +151,7 @@ class BirthdayApp:
 
     def show_about(self):
         messagebox.showinfo("About", "Программа для генерации изображения со списком именинников текущего месяца. "
-                                     "Автор: Разин Григорий, razin.grigory@yandex.ru")
+                                     "Автор: Разин Григорий, lantester35@gmail.com")
 
     def validate_date(self, date_str):
         try:
